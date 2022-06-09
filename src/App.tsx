@@ -1,11 +1,7 @@
 import Terminal from './Terminal';
 
 const App = () => {
-  return (
-    <div id="terminal-container">
-      <Terminal />
-    </div>
-  );
+  return <Terminal />;
 };
 
 export default App;
