@@ -1,31 +1,39 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
-import { theme, colors, getShortcutKey } from 'utils/helper';
+import { useResizeDetector } from 'react-resize-detector';
+import { getTheme, colors, getShortcutKey } from 'utils/helper';
+import { Theme } from 'models';
 
 interface ITerminal extends Terminal {
   _core?: { buffer: { x: number } };
+  _addonManager?: { _addons: [{ instance: FitAddon }] };
 }
 
-const useTerminal = (prompText: string = 'C:') => {
-  const ref = useRef<HTMLDivElement>();
+const useTerminal = (themeMode: Theme, prompText: string) => {
   const termRef = useRef<ITerminal>();
   let inputText = '';
   let currentIndex = 0;
   let inputTextList: string[] = [];
 
+  const onResize = useCallback(() => {
+    termRef.current?._addonManager?._addons[0]?.instance.fit();
+  }, []);
+
+  const { ref } = useResizeDetector({ onResize });
+
   const prefix = `${prompText}~$ `;
 
   const prompt = () => {
-    termRef.current.write(`\r\n${colors.green}${prefix}`);
+    termRef.current.write(`\r\n${colors[themeMode].green}${prefix}`);
   };
 
   const write = (cmd: string) => {
-    termRef.current.write(`${colors.primary}${cmd}`);
+    termRef.current.write(`${colors[themeMode].primary}${cmd}`);
   };
 
   const writeLn = (cmd: string) => {
-    termRef.current.write(`\r\n${colors.primary}${cmd}`);
+    termRef.current.write(`\r\n${colors[themeMode].primary}${cmd}`);
   };
 
   const getCursorOffsetLength = (offsetLength: number, subString: string = '') => {
@@ -140,7 +148,6 @@ const useTerminal = (prompText: string = 'C:') => {
 
   useEffect(() => {
     termRef.current = new Terminal({
-      theme: theme,
       cursorBlink: true,
       fontFamily: '"Cascadia Code", Menlo, monospace',
     });
@@ -157,6 +164,12 @@ const useTerminal = (prompText: string = 'C:') => {
       termRef.current.dispose();
     };
   }, []);
+
+  useEffect(() => {
+    if (termRef.current) {
+      termRef.current.setOption('theme', getTheme(themeMode));
+    }
+  }, [themeMode]);
 
   return ref;
 };
