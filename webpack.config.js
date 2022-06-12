@@ -53,7 +53,7 @@ const config = (env) => {
         name: 'terminal',
         filename: 'remoteEntry.js',
         exposes: {
-          './Terminal': './src/Terminal',
+          './Terminal': './src/components/Terminal',
         },
         shared: {
           react: { singleton: true, requiredVersion: deps.react, eager: true },
