@@ -50,30 +50,18 @@ const config = (env) => {
         template: 'public/index.html',
       }),
       new container.ModuleFederationPlugin({
-        name: 'terminal',
+        name: 'term',
         filename: 'remoteEntry.js',
         exposes: {
-          './Terminal': './src/components/Terminal',
+          './Terminal': './src/components/Terminal/index.tsx',
         },
         shared: {
           react: { singleton: true, requiredVersion: deps.react, eager: true },
-          'react-dom': { singleton: true, requiredVersion: deps.react, eager: true },
+          'react-dom': { singleton: true, requiredVersion: deps['react-dom'], eager: true },
         },
       }),
       new MiniCssExtractPlugin(),
     ],
-    optimization: {
-      runtimeChunk: 'single',
-      splitChunks: {
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-        },
-      },
-    },
   };
 };
 
